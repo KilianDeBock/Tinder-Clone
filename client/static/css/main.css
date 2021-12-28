@@ -1,0 +1,127 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+
+:root {
+    --color-gray-100: #eaeffa;
+    --color-gray-200: #ccd7e1;
+    --color-purple_400: #7E57C5;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+/* Functionality */
+body {
+    font-family: "Roboto", sans-serif;
+}
+
+main {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr) 2fr 1fr;
+}
+
+main > * {
+    background-color: var(--color-gray-100);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-height: 100vh;
+    border: 1px solid black;
+}
+
+.duo-box {
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: repeat(2, 50%);
+    height: inherit;
+}
+
+.duo-box > * {
+    display: flex;
+    flex-direction: column;
+}
+
+.duo-box .content {
+    overflow-y: scroll;
+}
+
+.content {
+    overflow-y: scroll;
+}
+
+/* Styling */
+
+.counting-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--color-gray-200);
+    border-top: 1px solid var(--color-gray-200);
+}
+
+.counting-box__counter {
+    padding: .5rem 1rem;
+    border-radius: .5rem;
+    color: var(--color-gray-100);
+    font-weight: bold;
+    margin: .5rem;
+    background-color: var(--color-purple_400);
+}
+
+.inbox__list-item,
+.outbox__list-item {
+    padding: 1rem .5rem;
+    border-top: 1px solid var(--color-gray-200);
+}
+
+.inbox__list-item .name,
+.outbox__list-item .name {
+    color: var(--color-purple_400);
+    font-weight: bold;
+}
+
+h2 {
+    font-size: 2rem;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 1.5rem;
+    background-color: var(--color-gray-200);
+}
+
+h3 {
+    font-size: 2rem;
+    text-transform: uppercase;
+    padding: 1rem .5rem;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.full_height > * {
+    display: flex;
+    flex-direction: column;
+    /* height: 40vh; */
+}
+
+.selected {
+    background-color: red
+}
+
+::-webkit-scrollbar {
+    width: .5rem;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #a9d6ee;
+    border-radius: .5rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #7f9bde;
+}
