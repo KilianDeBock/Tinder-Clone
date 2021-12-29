@@ -10,10 +10,21 @@ function TinderApi() {
     }
   };
 
-  this.getMessagesFromUser = async (userId) => {
+  this.getReceivedMessagesFromUser = async (userId) => {
     try {
       const response = await fetch(
-        `${TINDER_BASE_PATH}/users/${userId}/messages`
+        `${TINDER_BASE_PATH}/users/${userId}/messages?type=received`
+      );
+      return await response.json();
+    } catch (error) {
+      console.log("An error occurred!", error);
+    }
+  };
+
+  this.getSentMessagesFromUser = async (userId) => {
+    try {
+      const response = await fetch(
+        `${TINDER_BASE_PATH}/users/${userId}/messages?type=sent`
       );
       return await response.json();
     } catch (error) {

@@ -29,6 +29,15 @@ const readDataFromMessagesFile = () => {
   return JSON.parse(data);
 };
 
+// Read users.json
+const readDataFromUsersFile = () => {
+  const data = fs.readFileSync(filePathUsers, {
+    encoding: "utf8",
+    flag: "r",
+  });
+  return JSON.parse(data);
+};
+
 // Get all messages
 const getMessages = () => {
   try {
@@ -41,32 +50,31 @@ const getMessages = () => {
 };
 
 // Get all messages from user.
-const getMessagesFromUser = (userId) => {
+const getMessagesFromUser = (userId, type = null) => {
   try {
+    console.log(type);
     const messages = readDataFromMessagesFile();
     // Filter array were the user id is the same.
-    const receivedMessages = messages.filter((c) => c.senderId === userId);
-    const sendMessages = messages.filter((c) => c.receiverId === userId);
-    if (!receivedMessages.length || !sendMessages.length) {
+    const userMessages =
+      type === "received"
+        ? messages.filter((c) => c.senderId === userId)
+        : type === "sent"
+        ? messages.filter((c) => c.receiverId === userId)
+        : messages.filter(
+            (c) => c.senderId === userId || c.receiverId === userId
+          );
+
+    if (!userMessages.length) {
       throw new HTTPError(
         `We can't find messages from the user with id ${userId}`,
         404
       );
     }
-    receivedMessages.sort((a, b) => b.createdAt - a.createdAt);
-    sendMessages.sort((a, b) => b.createdAt - a.createdAt);
-    return { receivedMessages, sendMessages };
+    userMessages.sort((a, b) => b.createdAt - a.createdAt);
+    return userMessages;
   } catch (error) {
     throw error;
   }
-};
-// Read users.json
-const readDataFromUsersFile = () => {
-  const data = fs.readFileSync(filePathUsers, {
-    encoding: "utf8",
-    flag: "r",
-  });
-  return JSON.parse(data);
 };
 
 // Get all users
@@ -84,9 +92,24 @@ const getUsers = () => {
   }
 };
 
+// Get user by id.
+const getUserFromId = (userId) => {
+  try {
+    const users = readDataFromUsersFile();
+    const user = users.filter((a) => a.id === userId);
+    if (!user.length) {
+      throw new HTTPError(`We can't find the user with id ${userId}`, 404);
+    }
+    return user;
+  } catch (error) {
+    throw new HTTPError("Can't get user!", 500);
+  }
+};
+
 // Export all the methods of the data service
 module.exports = {
   getMessages,
   getMessagesFromUser,
   getUsers,
+  getUserFromId,
 };

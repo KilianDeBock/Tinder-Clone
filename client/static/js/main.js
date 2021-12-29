@@ -13,7 +13,7 @@
     cacheElements() {
       this.$usersList = document.querySelector("#users__list");
       this.$recievedMessages = document.querySelector("#inbox__list");
-      this.$sendMessages = document.querySelector("#outbox__list");
+      this.$sentMessages = document.querySelector("#outbox__list");
       this.$messagesList = document.querySelector("#conversation__list");
     },
     registerListeners() {
@@ -36,7 +36,7 @@
         this.setActiveMessage(messageId);
       });
 
-      this.$sendMessages.addEventListener("click", (ev) => {
+      this.$sentMessages.addEventListener("click", (ev) => {
         console.log(ev.target);
         const messageId =
           ev.target.dataset.id ||
@@ -51,10 +51,9 @@
       this.$usersList.innerHTML = this.users
         .map(
           (user) => `
-        <li class="users__list-item">
-            <a href="#" data-id="${user.id}">
-                <span class="">${user.username}</span>            
-            </a>
+        <li class="users__list-item" data-id="${user.id}">
+            <img src="${user.picture.thumbnail}" alt="Profile picture ${user.username}">
+            <span class="">${user.username}</span>       
         </li>`
         )
         .join("");
@@ -69,31 +68,46 @@
         $selectedUser.classList.remove("selected");
       }
       this.$usersList
-        .querySelector(`.users__list-item > a[data-id="${userId}"]`)
-        .parentNode.classList.add("selected");
+        .querySelector(`.users__list-item[data-id="${userId}"]`)
+        .classList.add("selected");
       this.fetchMessagesFromUser(userId);
     },
     async fetchMessagesFromUser(userId) {
-      this.messages = await this.TinderApi.getMessagesFromUser(userId);
-      this.$recievedMessages.innerHTML = this.messages.receivedMessages
-        .map(
-          (message) => `
-        <li class="conversation__list-item inbox__list-item" data-id="${message.id}">
-            <span class="name">${message.senderId}</span>
-            <p class="">${message.message}</p>
-        </li>`
-        )
+      // Received messages
+      this.receivedMessages = await this.TinderApi.getReceivedMessagesFromUser(
+        userId
+      );
+      this.$recievedMessages.innerHTML = this.receivedMessages
+        .map((message) => {
+          const user = this.users.find((u) => u.id === message.receiverId);
+          return `
+            <li class="conversation__list-item inbox__list-item" data-id="${message.id}">
+                <span class="name">${user.username}</span>
+                <p class="">${message.message}</p>
+            </li>`;
+        })
         .join("");
-      this.$sendMessages.innerHTML = this.messages.sendMessages
-        .map(
-          (message) => `
-        <li class="conversation__list-item inbox__list-item" data-id="${message.id}">
-            <span class="name">${message.senderId}</span>
-            <p class="">${message.message}</p>
-        </li>`
-        )
+      document.querySelector(
+        "#inbox > .counting-box > .counting-box__counter"
+      ).innerHTML = this.receivedMessages.length;
+
+      // Sent messages
+      this.sentMessages = await this.TinderApi.getSentMessagesFromUser(userId);
+      this.$sentMessages.innerHTML = this.sentMessages
+        .map((message) => {
+          const user = this.users.find((u) => u.id === message.senderId);
+          return `
+            <li class="conversation__list-item inbox__list-item" data-id="${message.id}">
+                <span class="name">${user.username}</span>
+                <p class="">${message.message}</p>
+            </li>`;
+        })
         .join("");
-      this.setActiveMessage(this.messages.receivedMessages[0].id);
+      document.querySelector(
+        "#outbox > .counting-box > .counting-box__counter"
+      ).innerHTML = this.sentMessages.length;
+
+      this.setActiveMessage(this.receivedMessages[0].id);
     },
     setActiveMessage(messageId) {
       this.currentMessageId = messageId;

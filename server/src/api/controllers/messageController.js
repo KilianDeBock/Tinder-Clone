@@ -35,8 +35,9 @@ const getMessagesFromUserById = (req, res, next) => {
   try {
     // Get userid params out of url.
     const { userId } = req.params;
+    const { type } = req.query;
     // Get messages from specific user
-    const messages = dataService.getMessagesFromUser(userId);
+    const messages = dataService.getMessagesFromUser(userId, type);
     res.status(200).json(messages);
   } catch (error) {
     handleHTTPError(error, next);
