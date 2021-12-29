@@ -48,10 +48,16 @@ const getMessagesFromUserById = (req, res, next) => {
 Create a new message
 */
 const createMessage = (req, res, next) => {
-  handleHTTPError(
-    new HTTPError("The action method is not yet implemented!", 501),
-    next
-  );
+  try {
+    // Get body (message) from request
+    const message = req.body;
+    // Create a message
+    const createdMessage = dataService.createMessage(message);
+    // Send response
+    res.status(201).json(createdMessage);
+  } catch (error) {
+    handleHTTPError(error, next);
+  }
 };
 
 /*

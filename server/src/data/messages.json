@@ -7194,5 +7194,12 @@
     "message": "Ik ben super blij jouw kennis te ontdekken :)",
     "id": "4319759f-1b77-4c01-becc-3534cb5933d0",
     "createdAt": 1609531871337
+  },
+  {
+    "message": "Erg leuk, die post requests!",
+    "senderId": "679e8f13-f384-43a1-bef0-40059e5657f2",
+    "receiverId": "d4dd9a85-c036-4ba3-864f-ecef1e94baeb",
+    "id": "889c03cc-dccd-4ac4-b7bd-0f40426970f9",
+    "createdAt": 1640801208053
   }
 ]

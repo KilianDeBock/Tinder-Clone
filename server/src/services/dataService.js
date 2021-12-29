@@ -3,7 +3,7 @@ Import packages
 */
 const fs = require("fs");
 const path = require("path");
-const { v4: uuidv4 } = require("uuid");
+const { v4: uuid } = require("uuid");
 
 /*
 Import custom packages
@@ -52,16 +52,15 @@ const getMessages = () => {
 // Get all messages from user.
 const getMessagesFromUser = (userId, type = null) => {
   try {
-    console.log(type);
     const messages = readDataFromMessagesFile();
     // Filter array were the user id is the same.
     const userMessages =
       type === "received"
-        ? messages.filter((c) => c.senderId === userId)
-        : type === "sent"
         ? messages.filter((c) => c.receiverId === userId)
+        : type === "sent"
+        ? messages.filter((c) => c.senderId === userId)
         : messages.filter(
-            (c) => c.senderId === userId || c.receiverId === userId
+            (c) => c.receiverId === userId || c.senderId === userId
           );
 
     if (!userMessages.length) {
@@ -106,10 +105,32 @@ const getUserFromId = (userId) => {
   }
 };
 
+// Get user by id.
+const createMessage = (message) => {
+  try {
+    // Get all messages
+    const messages = readDataFromMessagesFile();
+    // Create a message
+    const messageToCreate = {
+      ...message,
+      id: uuid(),
+      createdAt: Date.now(),
+    };
+    messages.push(messageToCreate);
+    // Write messages to messages.json
+    fs.writeFileSync(filePathMessages, JSON.stringify(messages, null, 2));
+    // Return created message
+    return messageToCreate;
+  } catch (error) {
+    throw new HTTPError(`Can't create new message!`, 501);
+  }
+};
+
 // Export all the methods of the data service
 module.exports = {
   getMessages,
   getMessagesFromUser,
+  createMessage,
   getUsers,
   getUserFromId,
 };
