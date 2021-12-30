@@ -38,6 +38,15 @@ const readDataFromUsersFile = () => {
   return JSON.parse(data);
 };
 
+// Read matches.json
+const readDataFromMatchesFile = () => {
+  const data = fs.readFileSync(filePathMatches, {
+    encoding: "utf8",
+    flag: "r",
+  });
+  return JSON.parse(data);
+};
+
 // Get all messages
 const getMessages = () => {
   try {
@@ -50,27 +59,35 @@ const getMessages = () => {
 };
 
 // Get all messages from user.
-const getMessagesFromUser = (userId, type = null) => {
+const getMessagesFromUser = (userId, type, friendId) => {
   try {
-    const messages = readDataFromMessagesFile();
-    // Filter array were the user id is the same.
-    const userMessages =
-      type === "received"
-        ? messages.filter((c) => c.receiverId === userId)
-        : type === "sent"
-        ? messages.filter((c) => c.senderId === userId)
-        : messages.filter(
-            (c) => c.receiverId === userId || c.senderId === userId
-          );
+    const data = readDataFromMessagesFile();
 
-    if (!userMessages.length) {
+    // Filter array were the user id is the same.
+    let messages = data.filter(
+      (c) => c.receiverId === userId || c.senderId === userId
+    );
+
+    if (type === "received") {
+      messages = data.filter((c) => c.receiverId === userId);
+    } else if (type === "sent") {
+      messages = data.filter((c) => c.senderId === userId);
+    } else if (type === "conversation") {
+      messages = data.filter(
+        (m) =>
+          (m.senderId === friendId && m.receiverId === userId) ||
+          (m.receiverId === friendId && m.senderId === userId)
+      );
+    }
+
+    if (!messages.length) {
       throw new HTTPError(
         `We can't find messages from the user with id ${userId}`,
         404
       );
     }
-    userMessages.sort((a, b) => b.createdAt - a.createdAt);
-    return userMessages;
+    messages.sort((a, b) => b.createdAt - a.createdAt);
+    return messages;
   } catch (error) {
     throw error;
   }
@@ -80,11 +97,12 @@ const getMessagesFromUser = (userId, type = null) => {
 const getUsers = () => {
   try {
     const users = readDataFromUsersFile();
-    users.sort((a, b) => {
-      if (a.username > b.username) return 1;
-      else if (a.username < b.username) return -1;
-      return 0;
-    });
+    // // Disabled due to same view of the assignment.
+    // users.sort((a, b) => {
+    //   if (a.createdAt > b.lastName) return 1;
+    //   else if (a.lastName < b.lastName) return -1;
+    //   return 0;
+    // });
     return users;
   } catch (error) {
     throw new HTTPError("Can't get users!", 500);
@@ -126,11 +144,46 @@ const createMessage = (message) => {
   }
 };
 
+// Get all matches
+const getMatches = () => {
+  try {
+    const matches = readDataFromMatchesFile();
+    matches.sort((a, b) => a.createdAt - b.createdAt);
+    return matches;
+  } catch (error) {
+    throw new HTTPError("Can't get messages!", 500);
+  }
+};
+
+// Get all messages from user.
+const getMatchesFromUser = (userId) => {
+  try {
+    const data = readDataFromMatchesFile();
+    // Filter array were the user id is the same.
+    const matches = data.filter(
+      (m) => m.friendId === userId || m.userId === userId
+    );
+
+    if (!matches.length) {
+      throw new HTTPError(
+        `We can't find matches from the user with id ${userId}`,
+        404
+      );
+    }
+    matches.sort((a, b) => b.createdAt - a.createdAt);
+    return matches;
+  } catch (error) {
+    throw error;
+  }
+};
+
 // Export all the methods of the data service
 module.exports = {
   getMessages,
-  getMessagesFromUser,
   createMessage,
+  getMessagesFromUser,
   getUsers,
   getUserFromId,
+  getMatches,
+  getMatchesFromUser,
 };

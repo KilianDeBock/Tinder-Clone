@@ -36,17 +36,10 @@ function TinderApi() {
     try {
       // Fetch all messages with the userId in it.
       const response = await fetch(
-        `${TINDER_BASE_PATH}/users/${userId}/messages`
+        `${TINDER_BASE_PATH}/users/${userId}/messages?type=conversation&friendId=${friendId}`
       );
       // Convert it to JSON.
-      const allMessages = await response.json();
-
-      // Filter the messages with only the friendId.
-      const messages = allMessages.filter(
-        (m) =>
-          (m.senderId === friendId && m.receiverId === userId) ||
-          (m.receiverId === friendId && m.senderId === userId)
-      );
+      const messages = await response.json();
       // Sort the array by creation date, the oldest first.
       messages.sort((a, b) => a.createdAt - b.createdAt);
 
@@ -79,7 +72,16 @@ function TinderApi() {
     }
   };
 
-  this.getMatchesForUser = async (userId) => {};
+  this.getMatchesForUser = async (userId) => {
+    try {
+      const response = await fetch(
+        `${TINDER_BASE_PATH}/users/${userId}/matches`
+      );
+      return await response.json();
+    } catch (error) {
+      console.log("An error occurred!", error);
+    }
+  };
 
   this.addMatch = async (userId, friendId, rating) => {};
 }

@@ -174,6 +174,86 @@ main > * {
     float: right;
 }
 
+.match h3 {
+    border-bottom: 1px solid var(--color-gray-200);
+    border-top: 1px solid var(--color-gray-200);
+}
+
+.match__list-item {
+    border-bottom: 1px solid var(--color-gray-200);
+    padding: 2rem .5rem 1rem;
+}
+
+.match__list-item__user-info {
+    display: flex;
+}
+
+.match__list-item__user-info > img {
+    height: 5rem;
+    width: 5rem;
+}
+
+.match__list-item__user-info > div * {
+    margin-left: 1rem;
+    display: block;
+}
+
+.match__list-item__rating {
+    height: 2rem;
+    display: flex;
+    margin-top: 1rem;
+    justify-content: space-around;
+}
+
+.match__list-item__rating > * {
+    width: 2rem;
+    background-position: center;
+    background-size: cover;
+}
+
+.match__list-item__incoming-rating.disliked,
+.match__list-item__incoming-rating.liked,
+.match__list-item__incoming-rating.superliked {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.match__list-item__incoming-rating.disliked > span,
+.match__list-item__incoming-rating.liked > span,
+.match__list-item__incoming-rating.superliked > span {
+    background-size: cover;
+    width: 3rem;
+    height: 3rem;
+}
+
+.match__list-item__rating > .match__list-item__rating-dislike {
+    background-image: url("../media/images/dislike.png");
+}
+
+.match__list-item__rating.disliked > .match__list-item__rating-dislike,
+.match__list-item__incoming-rating.disliked > span {
+    background-image: url("../media/images/disliked.png");
+}
+
+.match__list-item__rating > .match__list-item__rating-like {
+    background-image: url("../media/images/like.png");
+}
+
+.match__list-item__rating.liked > .match__list-item__rating-like,
+.match__list-item__incoming-rating.liked > span {
+    background-image: url("../media/images/liked.png");
+}
+
+.match__list-item__rating > .match__list-item__rating-superlike {
+    background-image: url("../media/images/superlike.png");
+}
+
+.match__list-item__rating.superliked > .match__list-item__rating-superlike,
+.match__list-item__incoming-rating.superliked > span {
+    background-image: url("../media/images/superliked.png");
+}
+
 /* default styles */
 h2 {
     font-size: 2rem;

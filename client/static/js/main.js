@@ -18,6 +18,8 @@
       this.$sentMessages = document.querySelector("#outbox__list");
       this.$conversationList = document.querySelector("#conversation__list");
       this.$conversationForm = document.querySelector("#conversation__form");
+      this.$noMatchList = document.querySelector("#no-match__list");
+      this.$matchList = document.querySelector("#match__list");
     },
     registerListeners() {
       this.$usersList.addEventListener("click", (ev) => {
@@ -70,7 +72,7 @@
           (user) => `
             <li class="users__list-item" data-id="${user.id}">
                 <img src="${user.picture.thumbnail}" alt="Profile picture ${user.username}">
-                <span class="">${user.username}</span>       
+                <span>${user.firstName} ${user.lastName}</span>       
             </li>`
         )
         .join("");
@@ -124,7 +126,7 @@
           const user = this.users.find((u) => u.id === message.senderId);
           return `
             <li class="messages__list-item inbox__list-item" data-id="${message.id}">
-                <span class="name">${user.username}</span>
+                <span class="name">${user.firstName} ${user.lastName}</span>
                 <p class="">${message.message}</p>
             </li>`;
         })
@@ -167,6 +169,7 @@
       this.currentFriendId = this.getFriendIdByMessageId(messageId);
 
       this.fetchConversationMessages();
+      this.fetchMatches();
     },
     async fetchConversationMessages() {
       this.conversationMessages =
@@ -191,11 +194,125 @@
                 <span class="time">${moment(message.createdAt).format(
                   "MMM Do YY HH:mm"
                 )}</span>
-                <h1>${user.username}</h1>
+                <h1>${user.firstName} ${user.lastName}</h1>
                 <span>${message.message}</span>
             </div>`;
         })
         .join("");
+    },
+    async fetchMatches() {
+      // Get all matches
+      this.matches = await this.TinderApi.getMatchesForUser(this.currentUserId);
+
+      // Check duplicates function.
+      const checkDuplicates = (a) =>
+        this.matches.filter(
+          (b) => a.friendId === b.userId && a.userId === b.friendId
+        );
+      // Find complete matches.
+      const completeMatches = this.matches.filter(
+        (a) => checkDuplicates(a).length !== 0
+      );
+      // Find single matches.
+      const singleMatches = this.matches.filter(
+        (a) => checkDuplicates(a).length === 0
+      );
+
+      // add it to the html.
+      this.$matchList.innerHTML =
+        singleMatches.map((m) => this.buildMatches(m)).join("") +
+        completeMatches
+          .map((m) => this.buildMatches(m, completeMatches))
+          .join("");
+
+      // Find all no matches.
+      const noMatches = this.users.filter(
+        (user) =>
+          this.matches.filter(
+            (match) => user.id === match.userId || user.id === match.friendId
+          ).length === 0
+      );
+
+      // const cpm = completeMatches.length / 2;
+      // console.log(this.users.length);
+      // console.log(this.matches.length);
+      // console.log(singleMatches.length + completeMatches.length);
+      // console.log(singleMatches.length + cpm);
+      // console.log(singleMatches.length);
+      // console.log(noMatches.length);
+      // console.log(singleMatches.length + cpm + noMatches.length);
+
+      this.$noMatchList.innerHTML = noMatches
+        .map((user) => {
+          return `
+            <li class="match__list-item">
+                <div class="match__list-item__user-info">
+                  <img src="${user.picture.medium}" alt="${user.username}'s profile picture.">
+                  <div>
+                    <span>${user.firstName} ${user.lastName}</span>
+                  </div>
+                </div>
+                <div class="match__list-item__rating">
+                    <span class="match__list-item__rating-dislike"></span>
+                    <span class="match__list-item__rating-like"></span>
+                    <span class="match__list-item__rating-superlike"></span>
+                </div>
+            </li>`;
+        })
+        .join("");
+    },
+    buildMatches(match, complete = null) {
+      if (complete && match.userId === this.currentUserId) return;
+      else if (complete) {
+        const otherUser = complete.find((e) => e.friendId === match.userId);
+        match = {
+          ...match,
+          otherRating: otherUser.rating,
+        };
+      }
+
+      const friendId =
+        match.userId === this.currentUserId ? match.friendId : match.userId;
+      // Set friend and find its data
+      const friend = this.users.find((u) => u.id === friendId);
+
+      // Get age in milliseconds
+      const ageInMilliseconds = new Date().getTime() - friend.dayOfBirth;
+      // Convert to years
+      const getBirthDate = Math.round(
+        ageInMilliseconds / (1000 * 60 * 60 * 24 * 365)
+      );
+
+      // Check if the rating has an incoming rating or if it is your own.
+      let incomingRating = "",
+        activeRating = "";
+      if (complete) {
+        incomingRating = ` ${match.rating}d`;
+        activeRating = ` ${match.otherRating}d`;
+      } else if (match.friendId === this.currentUserId) {
+        incomingRating = ` ${match.rating}d`;
+      } else {
+        activeRating = ` ${match.rating}d`;
+      }
+
+      return `
+          <li class="match__list-item">
+              <div class="match__list-item__incoming-rating${incomingRating}">
+                  <span></span>
+              </div>
+              <div class="match__list-item__user-info">
+                <img src="${friend.picture.medium}" alt="${friend.username}'s profile picture.">
+                <div>
+                  <span>${friend.firstName} ${friend.lastName}</span>
+                  <span>${getBirthDate}</span>
+                </div>
+              </div>
+              <div class="match__list-item__rating${activeRating}">
+                  <span class="match__list-item__rating-dislike"></span>
+                  <span class="match__list-item__rating-like"></span>
+                  <span class="match__list-item__rating-superlike"></span>
+              </div>
+          </li>`;
     },
   };
   app.initialize();
