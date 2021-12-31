@@ -83,5 +83,26 @@ function TinderApi() {
     }
   };
 
-  this.addMatch = async (userId, friendId, rating) => {};
+  this.addMatch = async (userId, friendId, rating) => {
+    try {
+      const matchToCreate = {
+        userId: userId,
+        friendId: friendId,
+        rating: rating,
+      };
+
+      const response = await fetch(`${TINDER_BASE_PATH}/matches`, {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(matchToCreate),
+      });
+
+      return await response.json();
+    } catch (error) {
+      console.log("An error occurred!", error);
+    }
+  };
 }

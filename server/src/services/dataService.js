@@ -126,6 +126,12 @@ const getUserFromId = (userId) => {
 // Get user by id.
 const createMessage = (message) => {
   try {
+    if (!message.senderId || !message.receiverId || !message.message) {
+      throw new HTTPError(
+        `Cannot create message without senderId, receiverId orr message!`,
+        405
+      );
+    }
     // Get all messages
     const messages = readDataFromMessagesFile();
     // Create a message
@@ -151,7 +157,7 @@ const getMatches = () => {
     matches.sort((a, b) => a.createdAt - b.createdAt);
     return matches;
   } catch (error) {
-    throw new HTTPError("Can't get messages!", 500);
+    throw new HTTPError("Can't get match!", 500);
   }
 };
 
@@ -177,6 +183,38 @@ const getMatchesFromUser = (userId) => {
   }
 };
 
+// Get user by id.
+const createMatch = (match) => {
+  try {
+    if (!["like", "superlike", "dislike"].includes(match.rating)) {
+      throw new HTTPError(
+        `You are not allowed to use any other type than: like, superlike or dislike.`,
+        405
+      );
+    }
+    if (!match.userId || !match.friendId) {
+      throw new HTTPError(
+        `Cannot create match without userId or friendId id!`,
+        405
+      );
+    }
+    // Get all messages
+    const matches = readDataFromMatchesFile();
+    // Create a message
+    const matchToCreate = {
+      ...match,
+      createdAt: Date.now(),
+    };
+    matches.push(matchToCreate);
+    // Write messages to messages.json
+    fs.writeFileSync(filePathMatches, JSON.stringify(matches, null, 2));
+    // Return created message
+    return matchToCreate;
+  } catch (error) {
+    throw error;
+  }
+};
+
 // Export all the methods of the data service
 module.exports = {
   getMessages,
@@ -185,5 +223,6 @@ module.exports = {
   getUsers,
   getUserFromId,
   getMatches,
+  createMatch,
   getMatchesFromUser,
 };
