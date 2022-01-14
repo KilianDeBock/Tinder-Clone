@@ -1,4 +1,4 @@
-const TINDER_BASE_PATH = "http://localhost:8888/api";
+const TINDER_BASE_PATH = 'http://localhost:8888/api';
 
 function TinderApi() {
   this.getUsers = async () => {
@@ -6,7 +6,7 @@ function TinderApi() {
       const response = await fetch(`${TINDER_BASE_PATH}/users`);
       return await response.json();
     } catch (error) {
-      console.log("An error occurred!", error);
+      console.log('An error occurred!', error);
     }
   };
 
@@ -17,7 +17,7 @@ function TinderApi() {
       );
       return await response.json();
     } catch (error) {
-      console.log("An error occurred!", error);
+      console.log('An error occurred!', error);
     }
   };
 
@@ -28,7 +28,7 @@ function TinderApi() {
       );
       return await response.json();
     } catch (error) {
-      console.log("An error occurred!", error);
+      console.log('An error occurred!', error);
     }
   };
 
@@ -45,7 +45,7 @@ function TinderApi() {
 
       return messages;
     } catch (error) {
-      console.log("An error occurred!", error);
+      console.log('An error occurred!', error);
     }
   };
 
@@ -58,17 +58,17 @@ function TinderApi() {
       };
 
       const response = await fetch(`${TINDER_BASE_PATH}/messages`, {
-        method: "POST",
-        mode: "cors",
+        method: 'POST',
+        mode: 'cors',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(messageToCreate),
       });
 
       return await response.json();
     } catch (error) {
-      console.log("An error occurred!", error);
+      console.log('An error occurred!', error);
     }
   };
 
@@ -79,7 +79,7 @@ function TinderApi() {
       );
       return await response.json();
     } catch (error) {
-      console.log("An error occurred!", error);
+      console.log('An error occurred!', error);
     }
   };
 
@@ -92,17 +92,38 @@ function TinderApi() {
       };
 
       const response = await fetch(`${TINDER_BASE_PATH}/matches`, {
-        method: "POST",
-        mode: "cors",
+        method: 'POST',
+        mode: 'cors',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(matchToCreate),
       });
 
       return await response.json();
     } catch (error) {
-      console.log("An error occurred!", error);
+      console.log('An error occurred!', error);
+    }
+  };
+
+  this.updateMatch = async (userId, friendId, rating) => {
+    try {
+      const matchToUpdate = {
+        rating: rating,
+      };
+
+      const response = await fetch(`${TINDER_BASE_PATH}/matches/${userId}/${friendId}`, {
+        method: 'PUT',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(matchToUpdate),
+      });
+
+      return await response.json();
+    } catch (error) {
+      console.log('An error occurred!', error);
     }
   };
 }

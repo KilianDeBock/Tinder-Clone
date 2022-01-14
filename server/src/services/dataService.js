@@ -1,21 +1,21 @@
 /*
 Import packages
 */
-const fs = require("fs");
-const path = require("path");
-const { v4: uuid } = require("uuid");
+const fs = require('fs');
+const path = require('path');
+const {v4: uuid} = require('uuid');
 
 /*
 Import custom packages
 */
-const { HTTPError, convertArrayToPagedObject } = require("../utils");
+const {HTTPError, convertArrayToPagedObject} = require('../utils');
 
 /*
 File paths
 */
-const filePathMessages = path.join(__dirname, "..", "data", "messages.json");
-const filePathMatches = path.join(__dirname, "..", "data", "matches.json");
-const filePathUsers = path.join(__dirname, "..", "data", "users.json");
+const filePathMessages = path.join(__dirname, '..', 'data', 'messages.json');
+const filePathMatches = path.join(__dirname, '..', 'data', 'matches.json');
+const filePathUsers = path.join(__dirname, '..', 'data', 'users.json');
 
 /*
 Write your methods from here
@@ -23,8 +23,8 @@ Write your methods from here
 // Read messages.json
 const readDataFromMessagesFile = () => {
   const data = fs.readFileSync(filePathMessages, {
-    encoding: "utf8",
-    flag: "r",
+    encoding: 'utf8',
+    flag: 'r',
   });
   return JSON.parse(data);
 };
@@ -32,8 +32,8 @@ const readDataFromMessagesFile = () => {
 // Read users.json
 const readDataFromUsersFile = () => {
   const data = fs.readFileSync(filePathUsers, {
-    encoding: "utf8",
-    flag: "r",
+    encoding: 'utf8',
+    flag: 'r',
   });
   return JSON.parse(data);
 };
@@ -41,8 +41,8 @@ const readDataFromUsersFile = () => {
 // Read matches.json
 const readDataFromMatchesFile = () => {
   const data = fs.readFileSync(filePathMatches, {
-    encoding: "utf8",
-    flag: "r",
+    encoding: 'utf8',
+    flag: 'r',
   });
   return JSON.parse(data);
 };
@@ -54,7 +54,7 @@ const getMessages = () => {
     messages.sort((a, b) => a.createdAt - b.createdAt);
     return messages;
   } catch (error) {
-    throw new HTTPError("Can't get messages!", 500);
+    throw new HTTPError('Can\'t get messages!', 500);
   }
 };
 
@@ -68,11 +68,11 @@ const getMessagesFromUser = (userId, type, friendId) => {
       (c) => c.receiverId === userId || c.senderId === userId
     );
 
-    if (type === "received") {
+    if (type === 'received') {
       messages = data.filter((c) => c.receiverId === userId);
-    } else if (type === "sent") {
+    } else if (type === 'sent') {
       messages = data.filter((c) => c.senderId === userId);
-    } else if (type === "conversation") {
+    } else if (type === 'conversation') {
       messages = data.filter(
         (m) =>
           (m.senderId === friendId && m.receiverId === userId) ||
@@ -105,7 +105,7 @@ const getUsers = () => {
     // });
     return users;
   } catch (error) {
-    throw new HTTPError("Can't get users!", 500);
+    throw new HTTPError('Can\'t get users!', 500);
   }
 };
 
@@ -119,7 +119,7 @@ const getUserFromId = (userId) => {
     }
     return user;
   } catch (error) {
-    throw new HTTPError("Can't get user!", 500);
+    throw new HTTPError('Can\'t get user!', 500);
   }
 };
 
@@ -157,7 +157,7 @@ const getMatches = () => {
     matches.sort((a, b) => a.createdAt - b.createdAt);
     return matches;
   } catch (error) {
-    throw new HTTPError("Can't get match!", 500);
+    throw new HTTPError('Can\'t get match!', 500);
   }
 };
 
@@ -186,7 +186,7 @@ const getMatchesFromUser = (userId) => {
 // Get user by id.
 const createMatch = (match) => {
   try {
-    if (!["like", "superlike", "dislike"].includes(match.rating)) {
+    if (!['like', 'superlike', 'dislike'].includes(match.rating)) {
       throw new HTTPError(
         `You are not allowed to use any other type than: like, superlike or dislike.`,
         405
@@ -215,6 +215,47 @@ const createMatch = (match) => {
   }
 };
 
+// Get user by id.
+const updateMatch = ({rating}, userId, friendId) => {
+  try {
+    if (!['like', 'superlike', 'dislike'].includes(rating)) {
+      throw new HTTPError(
+        `You are not allowed to use any other type than: like, superlike or dislike.`,
+        405
+      );
+    }
+    if (!userId || !friendId) {
+      throw new HTTPError(
+        `Cannot create match without userId or friendId id!`,
+        405
+      );
+    }
+    // Get all messages
+    const matches = readDataFromMatchesFile();
+    // Create a message
+    const match = matches.find(e => e.userId === userId && e.friendId === friendId);
+
+    const updatedMatch = {
+      ...match,
+      rating,
+      createdAt: Date.now(),
+    };
+
+    const matchIndex = matches.findIndex(e => e.userId === userId && e.friendId === friendId);
+    if (matchIndex > -1) {
+      matches.splice(matchIndex, 1);
+      matches.push(updatedMatch);
+    }
+
+    fs.writeFileSync(filePathMatches, JSON.stringify(matches, null, 2));
+
+    // Return updated message
+    return updatedMatch;
+  } catch (error) {
+    throw error;
+  }
+};
+
 // Export all the methods of the data service
 module.exports = {
   getMessages,
@@ -225,4 +266,5 @@ module.exports = {
   getMatches,
   createMatch,
   getMatchesFromUser,
+  updateMatch
 };

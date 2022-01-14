@@ -73,6 +73,13 @@
             this.currentUserId,
             this.currentMessageId
           );
+        } else if (allowedRatings.some((c) => rating === c)) {
+          await this.TinderApi.updateMatch(this.currentUserId, friendId, rating);
+
+          await this.fetchMessagesFromUser(
+            this.currentUserId,
+            this.currentMessageId
+          );
         }
       });
     },
@@ -231,6 +238,8 @@
       // Get all matches
       this.matches = await this.TinderApi.getMatchesForUser(this.currentUserId);
 
+      this.matches.sort((a, b) => a.createdAt - b.createdAt);
+
       // Check duplicates function.
       const checkDuplicates = (a) =>
         this.matches.filter(
@@ -292,13 +301,12 @@
       /*
       Disabled this check and replaced it with an all canceling check.
       U should not be seeing your own ratings until the friend reacted.
-      ------------------------------------------------------------------
+      ------------------------------------------------------------------*/
       // If complete and yourself, stop.
       if (complete && match.userId === this.currentUserId) return;
-      */
 
-      // If yourself stop, cannot change rating, and shall not be seen until the friend reacted!
-      if (match.userId === this.currentUserId) return;
+        // If yourself stop, cannot change rating, and shall not be seen until the friend reacted!
+      // if (match.userId === this.currentUserId) return;
       else if (complete) {
         const otherUser = complete.find((e) => e.friendId === match.userId);
         match = {

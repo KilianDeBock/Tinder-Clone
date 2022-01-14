@@ -1,8 +1,8 @@
 /*
 Import custom packages
 */
-const dataService = require("../../services/dataService");
-const { HTTPError, handleHTTPError } = require("../../utils");
+const dataService = require('../../services/dataService');
+const {HTTPError, handleHTTPError} = require('../../utils');
 
 /*
 Get all matches
@@ -23,7 +23,7 @@ Get a specific match
 */
 const getMatchByIds = (req, res, next) => {
   handleHTTPError(
-    new HTTPError("The action method is not yet implemented!", 501),
+    new HTTPError('The action method is not yet implemented!', 501),
     next
   );
 };
@@ -34,7 +34,7 @@ Get matches from a specific user
 const getMatchesFromUserById = (req, res, next) => {
   try {
     // Get userid params out of url.
-    const { userId } = req.params;
+    const {userId} = req.params;
     // Get messages from specific user
     const matches = dataService.getMatchesFromUser(userId);
     res.status(200).json(matches);
@@ -63,10 +63,17 @@ const createMatch = (req, res, next) => {
 Update a specific match
 */
 const updateMatch = (req, res, next) => {
-  handleHTTPError(
-    new HTTPError("The action method is not yet implemented!", 501),
-    next
-  );
+  try {
+    // Get body (message) from request
+    const match = req.body;
+    // Create a message
+    const {senderId, receiverId} = req.params;
+    const updatedMatch = dataService.updateMatch(match, senderId, receiverId);
+    // Send response
+    res.status(201).json(updatedMatch);
+  } catch (error) {
+    handleHTTPError(error, next);
+  }
 };
 
 /*
@@ -74,7 +81,7 @@ Delete a specific match
 */
 const deleteMatch = (req, res, next) => {
   handleHTTPError(
-    new HTTPError("The action method is not yet implemented!", 501),
+    new HTTPError('The action method is not yet implemented!', 501),
     next
   );
 };
