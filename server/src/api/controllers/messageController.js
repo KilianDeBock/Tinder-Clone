@@ -35,6 +35,7 @@ const getMessagesFromUserById = (req, res, next) => {
   try {
     // Get userid params out of url.
     const {userId} = req.params;
+    console.log(req.query.friendId);
     const {type, friendId} = req.query;
     // Get messages from specific user
     const messages = dataService.getMessagesFromUser(userId, type, friendId);
