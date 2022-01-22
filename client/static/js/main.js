@@ -14,18 +14,18 @@
       this.conversationMessages = null;
     },
     cacheElements() {
-      this.$usersList = document.querySelector('#users__list');
-      this.$recievedMessages = document.querySelector('#inbox__list');
-      this.$sentMessages = document.querySelector('#outbox__list');
-      this.$searchBox = document.querySelector('#conversation__form-message');
-      this.$conversationList = document.querySelector('#conversation__list');
-      this.$conversationForm = document.querySelector('#conversation__form');
-      this.$match = document.querySelector('#matches');
-      this.$noMatchList = document.querySelector('#no-match__list');
-      this.$matchList = document.querySelector('#match__list');
+      this.$usersList = document.querySelector("#users__list");
+      this.$recievedMessages = document.querySelector("#inbox__list");
+      this.$sentMessages = document.querySelector("#outbox__list");
+      this.$searchBox = document.querySelector("#conversation__form-message");
+      this.$conversationList = document.querySelector("#conversation__list");
+      this.$conversationForm = document.querySelector("#conversation__form");
+      this.$match = document.querySelector("#matches");
+      this.$noMatchList = document.querySelector("#no-match__list");
+      this.$matchList = document.querySelector("#match__list");
     },
     registerListeners() {
-      this.$usersList.addEventListener('click', (ev) => {
+      this.$usersList.addEventListener("click", (ev) => {
         const userId =
           ev.target.dataset.id ??
           ev.target.parentNode.dataset.id ??
@@ -33,7 +33,7 @@
         this.setActiveUser(userId);
       });
 
-      this.$recievedMessages.addEventListener('click', (ev) => {
+      this.$recievedMessages.addEventListener("click", (ev) => {
         const messageId =
           ev.target.dataset.id ??
           ev.target.parentNode.dataset.id ??
@@ -41,7 +41,7 @@
         this.setActiveMessage(messageId);
       });
 
-      this.$sentMessages.addEventListener('click', (ev) => {
+      this.$sentMessages.addEventListener("click", (ev) => {
         const messageId =
           ev.target.dataset.id ??
           ev.target.parentNode.dataset.id ??
@@ -49,22 +49,22 @@
         this.setActiveMessage(messageId);
       });
 
-      this.$conversationForm.addEventListener('submit', ev => {
+      this.$conversationForm.addEventListener("submit", (ev) => {
         ev.preventDefault();
-        this.postMessages(ev.target['conversation__form-message']);
+        this.postMessages(ev.target["conversation__form-message"]);
       });
-      this.$searchBox.addEventListener('keydown', ev => {
+      this.$searchBox.addEventListener("keydown", (ev) => {
         if (ev.keyCode === 13) this.postMessages(ev.target);
       });
 
-      this.$match.addEventListener('click', async (ev) => {
-        const allowedRatings = ['dislike', 'like', 'superlike'],
+      this.$match.addEventListener("click", async (ev) => {
+        const allowedRatings = ["dislike", "like", "superlike"],
           target = ev.target,
           rating = target.dataset.rating,
           parent = target.parentNode,
           friendId = parent.parentNode.dataset.user;
         if (
-          parent.classList.contains('js__rating-pending') &&
+          parent.classList.contains("js__rating-pending") &&
           allowedRatings.some((c) => rating === c)
         ) {
           await this.TinderApi.addMatch(this.currentUserId, friendId, rating);
@@ -74,7 +74,11 @@
             this.currentMessageId
           );
         } else if (allowedRatings.some((c) => rating === c)) {
-          await this.TinderApi.updateMatch(this.currentUserId, friendId, rating);
+          await this.TinderApi.updateMatch(
+            this.currentUserId,
+            friendId,
+            rating
+          );
 
           await this.fetchMessagesFromUser(
             this.currentUserId,
@@ -84,8 +88,8 @@
       });
     },
     async postMessages(messageBox) {
-      if (messageBox.value === '')
-        return window.alert('Please enter a message!');
+      if (messageBox.value === "")
+        return window.alert("Please enter a message!");
 
       await this.TinderApi.addMessageBetweenUsers(
         this.currentUserId,
@@ -97,7 +101,7 @@
         this.currentUserId,
         this.currentMessageId
       );
-      messageBox.value = '';
+      messageBox.value = "";
     },
     async fetchUsers() {
       this.users = await this.TinderApi.getUsers();
@@ -109,7 +113,7 @@
                 <span>${user.firstName} ${user.lastName}</span>       
             </li>`
         )
-        .join('');
+        .join("");
       this.setActiveUser(this.users[0].id);
     },
     setActiveUser(userId) {
@@ -117,33 +121,33 @@
       const $selectedUser = this.$usersList.querySelector(
         `.users__list-item.selected`
       );
-      if ($selectedUser !== null) $selectedUser.classList.remove('selected');
+      if ($selectedUser !== null) $selectedUser.classList.remove("selected");
       this.$usersList
         .querySelector(`.users__list-item[data-id="${userId}"]`)
-        .classList.add('selected');
+        .classList.add("selected");
       this.fetchMessagesFromUser(userId);
     },
     getUserIdByMessageId(messageId) {
       // Find userId in sentMessages
-      const {receiverId} =
-      this.receivedMessages.find((message) => message.id === messageId) ?? {};
+      const { receiverId } =
+        this.receivedMessages.find((message) => message.id === messageId) ?? {};
 
       // Find userId in receivedMessages
-      const {senderId} =
-      this.sentMessages.find((message) => message.id === messageId) ?? {};
+      const { senderId } =
+        this.sentMessages.find((message) => message.id === messageId) ?? {};
 
       return senderId ?? receiverId;
     },
     getFriendIdByMessageId(messageId) {
       // Find userId in sentMessages
-      const {receiverId} = this.sentMessages.find(
+      const { receiverId } = this.sentMessages.find(
         (message) => message.id === messageId
-      ) || {receiverId: undefined};
+      ) || { receiverId: undefined };
 
       // Find userId in receivedMessages
-      const {senderId} = this.receivedMessages.find(
+      const { senderId } = this.receivedMessages.find(
         (message) => message.id === messageId
-      ) || {senderId: undefined};
+      ) || { senderId: undefined };
 
       return senderId || receiverId;
     },
@@ -154,6 +158,7 @@
       );
       returnMessage =
         returnMessage === null ? this.receivedMessages[0].id : returnMessage;
+      this.receivedMessages.sort((a, b) => b.createdAt - a.createdAt);
 
       this.$recievedMessages.innerHTML = this.receivedMessages
         .map((message) => {
@@ -164,9 +169,9 @@
                 <p class="">${message.message}</p>
             </li>`;
         })
-        .join('');
+        .join("");
       document.querySelector(
-        '#inbox > .counting-box > .counting-box__counter'
+        "#inbox > .counting-box > .counting-box__counter"
       ).innerHTML = this.receivedMessages.length;
 
       // Sent messages
@@ -176,13 +181,13 @@
           const user = this.users.find((u) => u.id === message.receiverId);
           return `
             <li class="messages__list-item outbox__list-item" data-id="${message.id}">
-                <span class="name">${user.username}</span>
+                <span class="name">${user.firstName} ${user.lastName}</span>
                 <p class="">${message.message}</p>
             </li>`;
         })
-        .join('');
+        .join("");
       document.querySelector(
-        '#outbox > .counting-box > .counting-box__counter'
+        "#outbox > .counting-box > .counting-box__counter"
       ).innerText = this.sentMessages.length;
 
       this.setActiveMessage(returnMessage);
@@ -193,12 +198,12 @@
         `.messages__list-item.selected`
       );
       if ($selectedMessage !== null) {
-        $selectedMessage.classList.remove('selected');
+        $selectedMessage.classList.remove("selected");
       }
 
       document
         .querySelector(`.messages__list-item[data-id="${messageId}"]`)
-        .classList.add('selected');
+        .classList.add("selected");
 
       this.currentFriendId = this.getFriendIdByMessageId(messageId);
 
@@ -221,18 +226,18 @@
           const isUser =
             message.senderId === this.currentUserId
               ? ` conversation__list-item__self`
-              : '';
+              : "";
           const user = this.users.find((u) => u.id === userId);
           return `
             <div class="conversation__list-item${isUser}">
                 <span class="time">${moment(message.createdAt).format(
-            'MMM Do YY HH:mm'
-          )}</span>
+                  "MMM Do YY HH:mm"
+                )}</span>
                 <h1>${user.firstName} ${user.lastName}</h1>
                 <span>${message.message}</span>
             </div>`;
         })
-        .join('');
+        .join("");
     },
     async fetchMatches() {
       // Get all matches
@@ -256,10 +261,10 @@
 
       // add it to the html.
       this.$matchList.innerHTML =
-        singleMatches.map((m) => this.buildMatches(m)).join('') +
+        singleMatches.map((m) => this.buildMatches(m)).join("") +
         completeMatches
           .map((m) => this.buildMatches(m, completeMatches))
-          .join('');
+          .join("");
 
       // Find all no matches.
       const noMatches = this.users.filter(
@@ -268,15 +273,6 @@
             (match) => user.id === match.userId || user.id === match.friendId
           ).length === 0
       );
-
-      // const cpm = completeMatches.length / 2;
-      // console.log(this.users.length);
-      // console.log(this.matches.length);
-      // console.log(singleMatches.length + completeMatches.length);
-      // console.log(singleMatches.length + cpm);
-      // console.log(singleMatches.length);
-      // console.log(noMatches.length);
-      // console.log(singleMatches.length + cpm + noMatches.length);
 
       this.$noMatchList.innerHTML = noMatches
         .map((user) => {
@@ -295,18 +291,10 @@
                 </div>
             </li>`;
         })
-        .join('');
+        .join("");
     },
     buildMatches(match, complete = null) {
-      /*
-      Disabled this check and replaced it with an all canceling check.
-      U should not be seeing your own ratings until the friend reacted.
-      ------------------------------------------------------------------*/
-      // If complete and yourself, stop.
       if (complete && match.userId === this.currentUserId) return;
-
-        // If yourself stop, cannot change rating, and shall not be seen until the friend reacted!
-      // if (match.userId === this.currentUserId) return;
       else if (complete) {
         const otherUser = complete.find((e) => e.friendId === match.userId);
         match = {
@@ -328,8 +316,8 @@
       );
 
       // Check if the rating has an incoming rating or if it is your own.
-      let incomingRating = '',
-        activeRating = ' js__rating-pending';
+      let incomingRating = "",
+        activeRating = " js__rating-pending";
       if (complete) {
         incomingRating = ` ${match.rating}d`;
         activeRating = ` ${match.otherRating}d`;

@@ -1,21 +1,21 @@
 /*
 Import packages
 */
-const fs = require('fs');
-const path = require('path');
-const {v4: uuid} = require('uuid');
+const fs = require("fs");
+const path = require("path");
+const { v4: uuid } = require("uuid");
 
 /*
 Import custom packages
 */
-const {HTTPError, convertArrayToPagedObject} = require('../utils');
+const { HTTPError, convertArrayToPagedObject } = require("../utils");
 
 /*
 File paths
 */
-const filePathMessages = path.join(__dirname, '..', 'data', 'messages.json');
-const filePathMatches = path.join(__dirname, '..', 'data', 'matches.json');
-const filePathUsers = path.join(__dirname, '..', 'data', 'users.json');
+const filePathMessages = path.join(__dirname, "..", "data", "messages.json");
+const filePathMatches = path.join(__dirname, "..", "data", "matches.json");
+const filePathUsers = path.join(__dirname, "..", "data", "users.json");
 
 /*
 Write your methods from here
@@ -23,8 +23,8 @@ Write your methods from here
 // Read messages.json
 const readDataFromMessagesFile = () => {
   const data = fs.readFileSync(filePathMessages, {
-    encoding: 'utf8',
-    flag: 'r',
+    encoding: "utf8",
+    flag: "r",
   });
   return JSON.parse(data);
 };
@@ -32,8 +32,8 @@ const readDataFromMessagesFile = () => {
 // Read users.json
 const readDataFromUsersFile = () => {
   const data = fs.readFileSync(filePathUsers, {
-    encoding: 'utf8',
-    flag: 'r',
+    encoding: "utf8",
+    flag: "r",
   });
   return JSON.parse(data);
 };
@@ -41,20 +41,55 @@ const readDataFromUsersFile = () => {
 // Read matches.json
 const readDataFromMatchesFile = () => {
   const data = fs.readFileSync(filePathMatches, {
-    encoding: 'utf8',
-    flag: 'r',
+    encoding: "utf8",
+    flag: "r",
   });
   return JSON.parse(data);
+};
+
+// Get all users
+const getUsers = () => {
+  try {
+    const users = readDataFromUsersFile();
+    // Disabled due to same view of the assignment.
+    /*
+    users.sort((a, b) => {
+      if (a.createdAt > b.lastName) return 1;
+      else if (a.lastName < b.lastName) return -1;
+      return 0;
+    });
+    */
+    return users;
+  } catch (error) {
+    throw new HTTPError("Can't get users!", 500);
+  }
+};
+
+// Get user by id.
+const getUserFromId = (userId) => {
+  try {
+    const users = readDataFromUsersFile();
+    const user = users.filter((a) => a.id === userId);
+    if (!user.length) {
+      throw new HTTPError(`We can't find the user with id ${userId}`, 404);
+    }
+    return user[0];
+  } catch (error) {
+    throw new HTTPError("Can't get user!", 500);
+  }
 };
 
 // Get all messages
 const getMessages = () => {
   try {
+    // Get messages
     const messages = readDataFromMessagesFile();
+    // Sort
     messages.sort((a, b) => a.createdAt - b.createdAt);
+    // Return
     return messages;
   } catch (error) {
-    throw new HTTPError('Can\'t get messages!', 500);
+    throw new HTTPError("Can't get messages!", 500);
   }
 };
 
@@ -68,11 +103,11 @@ const getMessagesFromUser = (userId, type, friendId) => {
       (c) => c.receiverId === userId || c.senderId === userId
     );
 
-    if (type === 'received') {
+    if (type === "received") {
       messages = data.filter((c) => c.receiverId === userId);
-    } else if (type === 'sent') {
+    } else if (type === "sent") {
       messages = data.filter((c) => c.senderId === userId);
-    } else if (type === 'conversation') {
+    } else if (type === "conversation") {
       messages = data.filter(
         (m) =>
           (m.senderId === friendId && m.receiverId === userId) ||
@@ -90,36 +125,6 @@ const getMessagesFromUser = (userId, type, friendId) => {
     return messages;
   } catch (error) {
     throw error;
-  }
-};
-
-// Get all users
-const getUsers = () => {
-  try {
-    const users = readDataFromUsersFile();
-    // // Disabled due to same view of the assignment.
-    // users.sort((a, b) => {
-    //   if (a.createdAt > b.lastName) return 1;
-    //   else if (a.lastName < b.lastName) return -1;
-    //   return 0;
-    // });
-    return users;
-  } catch (error) {
-    throw new HTTPError('Can\'t get users!', 500);
-  }
-};
-
-// Get user by id.
-const getUserFromId = (userId) => {
-  try {
-    const users = readDataFromUsersFile();
-    const user = users.filter((a) => a.id === userId);
-    if (!user.length) {
-      throw new HTTPError(`We can't find the user with id ${userId}`, 404);
-    }
-    return user;
-  } catch (error) {
-    throw new HTTPError('Can\'t get user!', 500);
   }
 };
 
@@ -150,6 +155,64 @@ const createMessage = (message) => {
   }
 };
 
+// Get user by id.
+const updateMessage = ({ message }, messageId) => {
+  try {
+    if (!messageId || !message) {
+      throw new HTTPError(
+        `Cannot update message without id or new message!`,
+        405
+      );
+    }
+    // Get all messages
+    const messages = readDataFromMessagesFile();
+    // Create a message
+    const oldMessage = messages.find((e) => e.id === messageId);
+
+    const updatedMessage = {
+      ...oldMessage,
+      message,
+      createdAt: Date.now(),
+    };
+
+    const messageIndex = messages.findIndex((e) => e.id === messageId);
+    if (messageIndex > -1) {
+      messages.splice(messageIndex, 1);
+      messages.push(updatedMessage);
+    }
+
+    fs.writeFileSync(filePathMessages, JSON.stringify(messages, null, 2));
+
+    // Return updated message
+    return updatedMessage;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Get user by id.
+const deleteMessage = (messageId) => {
+  try {
+    if (!messageId) {
+      throw new HTTPError(`Cannot delete message without id!`, 405);
+    }
+    // Get all messages
+    const messages = readDataFromMessagesFile();
+
+    const messageIndex = messages.findIndex((e) => e.id === messageId);
+    if (messageIndex > -1) {
+      const deletedMessage = messages.splice(messageIndex, 1);
+      fs.writeFileSync(filePathMessages, JSON.stringify(messages, null, 2));
+      return { status: "success", deleted: { ...deletedMessage[0] } };
+    }
+    throw new HTTPError(`Cannot find message with id ${messageId}!`, 404);
+
+    // Return updated message
+  } catch (error) {
+    throw error;
+  }
+};
+
 // Get all matches
 const getMatches = () => {
   try {
@@ -157,7 +220,7 @@ const getMatches = () => {
     matches.sort((a, b) => a.createdAt - b.createdAt);
     return matches;
   } catch (error) {
-    throw new HTTPError('Can\'t get match!', 500);
+    throw new HTTPError("Can't get match!", 500);
   }
 };
 
@@ -186,7 +249,7 @@ const getMatchesFromUser = (userId) => {
 // Get user by id.
 const createMatch = (match) => {
   try {
-    if (!['like', 'superlike', 'dislike'].includes(match.rating)) {
+    if (!["like", "superlike", "dislike"].includes(match.rating)) {
       throw new HTTPError(
         `You are not allowed to use any other type than: like, superlike or dislike.`,
         405
@@ -216,9 +279,9 @@ const createMatch = (match) => {
 };
 
 // Get user by id.
-const updateMatch = ({rating}, userId, friendId) => {
+const updateMatch = ({ rating }, userId, friendId) => {
   try {
-    if (!['like', 'superlike', 'dislike'].includes(rating)) {
+    if (!["like", "superlike", "dislike"].includes(rating)) {
       throw new HTTPError(
         `You are not allowed to use any other type than: like, superlike or dislike.`,
         405
@@ -233,7 +296,9 @@ const updateMatch = ({rating}, userId, friendId) => {
     // Get all messages
     const matches = readDataFromMatchesFile();
     // Create a message
-    const match = matches.find(e => e.userId === userId && e.friendId === friendId);
+    const match = matches.find(
+      (e) => e.userId === userId && e.friendId === friendId
+    );
 
     const updatedMatch = {
       ...match,
@@ -241,7 +306,9 @@ const updateMatch = ({rating}, userId, friendId) => {
       createdAt: Date.now(),
     };
 
-    const matchIndex = matches.findIndex(e => e.userId === userId && e.friendId === friendId);
+    const matchIndex = matches.findIndex(
+      (e) => e.userId === userId && e.friendId === friendId
+    );
     if (matchIndex > -1) {
       matches.splice(matchIndex, 1);
       matches.push(updatedMatch);
@@ -256,15 +323,49 @@ const updateMatch = ({rating}, userId, friendId) => {
   }
 };
 
+// Get user by id.
+const deleteMatch = (userId, friendId) => {
+  try {
+    if (!userId || !friendId) {
+      throw new HTTPError(
+        `Cannot delete match without user id or friend id!`,
+        405
+      );
+    }
+    // Get all messages
+    const matches = readDataFromMatchesFile();
+
+    const matchesIndex = matches.findIndex(
+      (e) => e.userId === userId && e.friendId === friendId
+    );
+    if (matchesIndex > -1) {
+      const deletedMatch = matches.splice(matchesIndex, 1);
+      fs.writeFileSync(filePathMatches, JSON.stringify(matches, null, 2));
+      return { status: "success", deleted: { ...deletedMatch[0] } };
+    }
+    throw new HTTPError(
+      `Cannot find match with userId ${userId} and friendId ${friendId}!`,
+      404
+    );
+
+    // Return updated message
+  } catch (error) {
+    throw error;
+  }
+};
+
 // Export all the methods of the data service
 module.exports = {
   getMessages,
   createMessage,
+  updateMessage,
+  deleteMessage,
   getMessagesFromUser,
   getUsers,
   getUserFromId,
   getMatches,
   createMatch,
   getMatchesFromUser,
-  updateMatch
+  updateMatch,
+  deleteMatch,
 };

@@ -1,15 +1,15 @@
 /*
 Import custom packages
 */
-const dataService = require('../../services/dataService');
-const {HTTPError, handleHTTPError} = require('../../utils');
+const dataService = require("../../services/dataService");
+const { HTTPError, handleHTTPError } = require("../../utils");
 
 /*
 Get all matches
 */
 const getMatches = (req, res, next) => {
   try {
-    // Get messages from data service
+    // Get matches
     const matches = dataService.getMatches();
     // Send response back to the client.
     res.status(200).json(matches);
@@ -19,24 +19,15 @@ const getMatches = (req, res, next) => {
 };
 
 /*
-Get a specific match
-*/
-const getMatchByIds = (req, res, next) => {
-  handleHTTPError(
-    new HTTPError('The action method is not yet implemented!', 501),
-    next
-  );
-};
-
-/*
 Get matches from a specific user
 */
 const getMatchesFromUserById = (req, res, next) => {
   try {
-    // Get userid params out of url.
-    const {userId} = req.params;
-    // Get messages from specific user
+    // Get params out of url
+    const { userId } = req.params;
+    // Get matches
     const matches = dataService.getMatchesFromUser(userId);
+    // Send response back to the client.
     res.status(200).json(matches);
   } catch (error) {
     handleHTTPError(error, next);
@@ -48,9 +39,9 @@ Create a new match
 */
 const createMatch = (req, res, next) => {
   try {
-    // Get body (message) from request
+    // Get http body
     const match = req.body;
-    // Create a message
+    // Create match
     const createdMatch = dataService.createMatch(match);
     // Send response
     res.status(201).json(createdMatch);
@@ -64,10 +55,11 @@ Update a specific match
 */
 const updateMatch = (req, res, next) => {
   try {
-    // Get body (message) from request
+    // Get body
     const match = req.body;
-    // Create a message
-    const {senderId, receiverId} = req.params;
+    // Get params
+    const { senderId, receiverId } = req.params;
+    // Update message
     const updatedMatch = dataService.updateMatch(match, senderId, receiverId);
     // Send response
     res.status(201).json(updatedMatch);
@@ -80,10 +72,16 @@ const updateMatch = (req, res, next) => {
 Delete a specific match
 */
 const deleteMatch = (req, res, next) => {
-  handleHTTPError(
-    new HTTPError('The action method is not yet implemented!', 501),
-    next
-  );
+  try {
+    // Get params
+    const { senderId, receiverId } = req.params;
+    // Delete matches
+    const deletedMatch = dataService.deleteMatch(senderId, receiverId);
+    // Send response
+    res.status(200).json(deletedMatch);
+  } catch (error) {
+    handleHTTPError(error, next);
+  }
 };
 
 // Export the action methods = callbacks
@@ -91,7 +89,6 @@ module.exports = {
   createMatch,
   deleteMatch,
   getMatches,
-  getMatchByIds,
   getMatchesFromUserById,
   updateMatch,
 };
