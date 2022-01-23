@@ -65,7 +65,6 @@ const getUsers = () => {
   }
 };
 
-// Get user by id.
 const getUserFromId = (userId) => {
   try {
     const users = readDataFromUsersFile();
@@ -128,7 +127,6 @@ const getMessagesFromUser = (userId, type, friendId) => {
   }
 };
 
-// Get user by id.
 const createMessage = (message) => {
   try {
     if (!message.senderId || !message.receiverId || !message.message) {
@@ -155,7 +153,6 @@ const createMessage = (message) => {
   }
 };
 
-// Get user by id.
 const updateMessage = ({ message }, messageId) => {
   try {
     if (!messageId || !message) {

@@ -59,7 +59,7 @@ const updateMatch = (req, res, next) => {
     const match = req.body;
     // Get params
     const { senderId, receiverId } = req.params;
-    // Update message
+    // Update match
     const updatedMatch = dataService.updateMatch(match, senderId, receiverId);
     // Send response
     res.status(201).json(updatedMatch);
