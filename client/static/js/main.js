@@ -1,21 +1,25 @@
 (() => {
   const app = {
     initialize() {
+      // Create new instance of TinderAPI
       this.TinderApi = new TinderApi();
-      this.cacheElements();
-      this.registerListeners();
-      this.fetchUsers();
 
+      // Set defaults
       this.users = null;
       this.currentUserId = null;
       this.currentFriendId = null;
       this.messages = null;
       this.currentMessageId = null;
       this.conversationMessages = null;
+
+      // Run functions
+      this.cacheElements();
+      this.registerListeners();
+      this.fetchUsers();
     },
     cacheElements() {
       this.$usersList = document.querySelector("#users__list");
-      this.$recievedMessages = document.querySelector("#inbox__list");
+      this.$receivedMessages = document.querySelector("#inbox__list");
       this.$sentMessages = document.querySelector("#outbox__list");
       this.$searchBox = document.querySelector("#conversation__form-message");
       this.$conversationList = document.querySelector("#conversation__list");
@@ -25,6 +29,7 @@
       this.$matchList = document.querySelector("#match__list");
     },
     registerListeners() {
+      // Add event listener to user list
       this.$usersList.addEventListener("click", (ev) => {
         const userId =
           ev.target.dataset.id ??
@@ -33,7 +38,8 @@
         this.setActiveUser(userId);
       });
 
-      this.$recievedMessages.addEventListener("click", (ev) => {
+      // Add event listener to receivedMessages
+      this.$receivedMessages.addEventListener("click", (ev) => {
         const messageId =
           ev.target.dataset.id ??
           ev.target.parentNode.dataset.id ??
@@ -41,6 +47,7 @@
         this.setActiveMessage(messageId);
       });
 
+      // Add event listener to sentMessages
       this.$sentMessages.addEventListener("click", (ev) => {
         const messageId =
           ev.target.dataset.id ??
@@ -49,37 +56,48 @@
         this.setActiveMessage(messageId);
       });
 
+      // Add event listener to send button
       this.$conversationForm.addEventListener("submit", (ev) => {
         ev.preventDefault();
         this.postMessages(ev.target["conversation__form-message"]);
       });
+      // Add event listener to box (the enter button)
       this.$searchBox.addEventListener("keydown", (ev) => {
         if (ev.keyCode === 13) this.postMessages(ev.target);
       });
 
+      // Add event listner to the matches
       this.$match.addEventListener("click", async (ev) => {
+        // Set allowed ratings and values.
         const allowedRatings = ["dislike", "like", "superlike"],
           target = ev.target,
           rating = target.dataset.rating,
           parent = target.parentNode,
           friendId = parent.parentNode.dataset.user;
+
+        // Check if the rating is pending, and if the rating is allowed.
         if (
           parent.classList.contains("js__rating-pending") &&
           allowedRatings.some((c) => rating === c)
         ) {
+          // Create match
           await this.TinderApi.addMatch(this.currentUserId, friendId, rating);
 
+          // Reload messages and matches.
           await this.fetchMessagesFromUser(
             this.currentUserId,
             this.currentMessageId
           );
+          // If not pending, still check if the reaction is allowed
         } else if (allowedRatings.some((c) => rating === c)) {
+          // Update the match.
           await this.TinderApi.updateMatch(
             this.currentUserId,
             friendId,
             rating
           );
 
+          // Reload messages and matches.
           await this.fetchMessagesFromUser(
             this.currentUserId,
             this.currentMessageId
@@ -88,23 +106,30 @@
       });
     },
     async postMessages(messageBox) {
+      // If empty stop and warn user.
       if (messageBox.value === "")
         return window.alert("Please enter a message!");
 
+      // Add message
       await this.TinderApi.addMessageBetweenUsers(
         this.currentUserId,
         this.currentFriendId,
         messageBox.value
       );
 
+      // Reload messages.
       await this.fetchMessagesFromUser(
         this.currentUserId,
         this.currentMessageId
       );
+
+      // Reset value (empty message box)
       messageBox.value = "";
     },
     async fetchUsers() {
+      // Get users
       this.users = await this.TinderApi.getUsers();
+      // Set users
       this.$usersList.innerHTML = this.users
         .map(
           (user) => `
@@ -117,50 +142,66 @@
       this.setActiveUser(this.users[0].id);
     },
     setActiveUser(userId) {
+      // Set current user
       this.currentUserId = userId;
+      // Cache last selected user
       const $selectedUser = this.$usersList.querySelector(
         `.users__list-item.selected`
       );
+      // Remove his selected class
       if ($selectedUser !== null) $selectedUser.classList.remove("selected");
+      // get new user, and add selected class
       this.$usersList
         .querySelector(`.users__list-item[data-id="${userId}"]`)
         .classList.add("selected");
+      // Get messages.
       this.fetchMessagesFromUser(userId);
     },
     getUserIdByMessageId(messageId) {
-      // Find userId in sentMessages
+      // Find userId in sentMessages if not return empty object
       const { receiverId } =
         this.receivedMessages.find((message) => message.id === messageId) ?? {};
 
-      // Find userId in receivedMessages
+      // Find userId in receivedMessages if not return empty object.
       const { senderId } =
         this.sentMessages.find((message) => message.id === messageId) ?? {};
 
-      return senderId ?? receiverId;
+      /*
+        Return senderId if not return receiverId,
+        one should be true. if not return null.
+      */
+      return senderId ?? receiverId ?? null;
     },
     getFriendIdByMessageId(messageId) {
-      // Find userId in sentMessages
-      const { receiverId } = this.sentMessages.find(
-        (message) => message.id === messageId
-      ) || { receiverId: undefined };
+      // Find userId in sentMessages if not return empty object
+      const { receiverId } =
+        this.sentMessages.find((message) => message.id === messageId) ?? {};
 
-      // Find userId in receivedMessages
-      const { senderId } = this.receivedMessages.find(
-        (message) => message.id === messageId
-      ) || { senderId: undefined };
+      // Find userId in receivedMessages if not return empty object.
+      const { senderId } =
+        this.receivedMessages.find((message) => message.id === messageId) ?? {};
 
-      return senderId || receiverId;
+      /*
+        Return senderId if not return receiverId,
+        one should be true. if not return null.
+      */
+      return senderId ?? receiverId ?? null;
     },
     async fetchMessagesFromUser(userId, returnMessage = null) {
-      // Received messages
+      // Get received messages
       this.receivedMessages = await this.TinderApi.getReceivedMessagesFromUser(
         userId
       );
-      returnMessage =
-        returnMessage === null ? this.receivedMessages[0].id : returnMessage;
+
+      // Sort the receiverMessages
       this.receivedMessages.sort((a, b) => b.createdAt - a.createdAt);
 
-      this.$recievedMessages.innerHTML = this.receivedMessages
+      // Set returnMessage, if unavailable set first received message, it not keep.
+      returnMessage =
+        returnMessage === null ? this.receivedMessages[0].id : returnMessage;
+
+      // Set html
+      this.$receivedMessages.innerHTML = this.receivedMessages
         .map((message) => {
           const user = this.users.find((u) => u.id === message.senderId);
           return `
@@ -170,12 +211,15 @@
             </li>`;
         })
         .join("");
+
+      // Set received messages on the fly. (cache and set together)
       document.querySelector(
         "#inbox > .counting-box > .counting-box__counter"
       ).innerHTML = this.receivedMessages.length;
 
-      // Sent messages
+      // Get Sent messages
       this.sentMessages = await this.TinderApi.getSentMessagesFromUser(userId);
+      // Set sent messages.
       this.$sentMessages.innerHTML = this.sentMessages
         .map((message) => {
           const user = this.users.find((u) => u.id === message.receiverId);
@@ -186,37 +230,49 @@
             </li>`;
         })
         .join("");
+
+      // Set received messages on the fly. (cache and set together)
       document.querySelector(
         "#outbox > .counting-box > .counting-box__counter"
       ).innerText = this.sentMessages.length;
 
+      // Set active message
       this.setActiveMessage(returnMessage);
     },
     setActiveMessage(messageId) {
+      // cache current message
       this.currentMessageId = messageId;
+      // get old selected message
       const $selectedMessage = document.querySelector(
         `.messages__list-item.selected`
       );
+
+      // remove old selected
       if ($selectedMessage !== null) {
         $selectedMessage.classList.remove("selected");
       }
 
+      // Set new selected message.
       document
         .querySelector(`.messages__list-item[data-id="${messageId}"]`)
         .classList.add("selected");
 
+      // Set currentFriendId (in cache)
       this.currentFriendId = this.getFriendIdByMessageId(messageId);
 
+      // run conversation and matches.
       this.fetchConversationMessages();
       this.fetchMatches();
     },
     async fetchConversationMessages() {
+      // Get conversation
       this.conversationMessages =
         await this.TinderApi.getConversationBetweenUsers(
           this.currentUserId,
           this.currentFriendId
         );
 
+      // Set conversation
       this.$conversationList.innerHTML = this.conversationMessages
         .map((message) => {
           const userId =
@@ -240,9 +296,8 @@
         .join("");
     },
     async fetchMatches() {
-      // Get all matches
+      // Get all matches and sort them
       this.matches = await this.TinderApi.getMatchesForUser(this.currentUserId);
-
       this.matches.sort((a, b) => a.createdAt - b.createdAt);
 
       // Check duplicates function.
@@ -250,16 +305,18 @@
         this.matches.filter(
           (b) => a.friendId === b.userId && a.userId === b.friendId
         );
+
       // Find complete matches.
       const completeMatches = this.matches.filter(
         (a) => checkDuplicates(a).length !== 0
       );
+
       // Find single matches.
       const singleMatches = this.matches.filter(
         (a) => checkDuplicates(a).length === 0
       );
 
-      // add it to the html.
+      // Add it to the html.
       this.$matchList.innerHTML =
         singleMatches.map((m) => this.buildMatches(m)).join("") +
         completeMatches
@@ -274,14 +331,25 @@
           ).length === 0
       );
 
+      // Set nomatches html
       this.$noMatchList.innerHTML = noMatches
         .map((user) => {
+          // Get age in milliseconds
+          const ageInMilliseconds = new Date().getTime() - user.dayOfBirth;
+          // Convert to years
+          const getBirthDate = Math.round(
+            ageInMilliseconds / (1000 * 60 * 60 * 24 * 365)
+          );
+
           return `
             <li class="match__list-item" data-user="${user.id}">
                 <div class="match__list-item__user-info">
                   <img src="${user.picture.medium}" alt="${user.username}'s profile picture.">
                   <div>
-                    <span>${user.firstName} ${user.lastName}</span>
+                    <span>${user.firstName} ${user.lastName} (${user.nationality})</span>
+                    <span>${getBirthDate} years old ${user.gender}</span>
+                    <span>${user.location.city}, ${user.location.country}</span>
+                    <span>${user.cell}</span>
                   </div>
                 </div>
                 <div class="match__list-item__rating js__rating-pending">
@@ -294,6 +362,7 @@
         .join("");
     },
     buildMatches(match, complete = null) {
+      // Check for complete match & active user if so stop!
       if (complete && match.userId === this.currentUserId) return;
       else if (complete) {
         const otherUser = complete.find((e) => e.friendId === match.userId);
@@ -327,6 +396,7 @@
         activeRating = ` ${match.rating}d`;
       }
 
+      // Return html
       return `
           <li class="match__list-item" data-user="${friend.id}">
               <div class="match__list-item__incoming-rating${incomingRating}">
@@ -335,8 +405,10 @@
               <div class="match__list-item__user-info">
                 <img src="${friend.picture.medium}" alt="${friend.username}'s profile picture.">
                 <div>
-                  <span>${friend.firstName} ${friend.lastName}</span>
-                  <span>${getBirthDate}</span>
+                  <span>${friend.firstName} ${friend.lastName} (${friend.nationality})</span>
+                  <span>${getBirthDate} years old ${friend.gender}</span>
+                  <span>${friend.location.city}, ${friend.location.country}</span>
+                  <span>${friend.cell}</span>
                 </div>
               </div>
               <div class="match__list-item__rating${activeRating}">
