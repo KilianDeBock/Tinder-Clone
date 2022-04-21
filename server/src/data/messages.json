@@ -7194,5 +7194,26 @@
     "message": "Ik ben super blij jouw kennis te ontdekken :)",
     "id": "4319759f-1b77-4c01-becc-3534cb5933d0",
     "createdAt": 1609531871337
+  },
+  {
+    "message": "Erg leuk, die post requests!",
+    "senderId": "679e8f13-f384-43a1-bef0-40059e5657f2",
+    "receiverId": "d4dd9a85-c036-4ba3-864f-ecef1e94baeb",
+    "id": "889c03cc-dccd-4ac4-b7bd-0f40426970f9",
+    "createdAt": 1640801208053
+  },
+  {
+    "message": "kim is cool",
+    "senderId": "004669ed-de13-4f6c-bf10-0bed00cf9a35",
+    "receiverId": "fe4e1f10-46d6-475b-a269-45e06ff28411",
+    "id": "ea28d5f3-c170-43e7-b0a2-6af9a847d636",
+    "createdAt": 1642080582981
+  },
+  {
+    "message": "hallo sexxy",
+    "senderId": "004669ed-de13-4f6c-bf10-0bed00cf9a35",
+    "receiverId": "fe4e1f10-46d6-475b-a269-45e06ff28411",
+    "id": "c308d66c-e620-4bf5-9c73-6afa8b57b067",
+    "createdAt": 1642085432693
   }
 ]

@@ -18,24 +18,6 @@
     "createdAt": 1609528228576
   },
   {
-    "userId": "679e8f13-f384-43a1-bef0-40059e5657f2",
-    "friendId": "382891de-69e0-4419-922e-d13d12325367",
-    "rating": "dislike",
-    "createdAt": 1609528228576
-  },
-  {
-    "userId": "679e8f13-f384-43a1-bef0-40059e5657f2",
-    "friendId": "3bbce49e-dbae-454e-b885-72094404090d",
-    "rating": "like",
-    "createdAt": 1609528228576
-  },
-  {
-    "userId": "679e8f13-f384-43a1-bef0-40059e5657f2",
-    "friendId": "326400e6-af2f-49cb-bf14-d509369b4594",
-    "rating": "superlike",
-    "createdAt": 1609528228576
-  },
-  {
     "userId": "c0fed28e-cc96-4d40-bebf-54832ff00ec3",
     "friendId": "277527c4-c9ab-4cb3-b744-95368aa19fda",
     "rating": "superlike",
@@ -248,12 +230,6 @@
   {
     "userId": "eace7a49-5798-4adf-9467-a9594057ee6f",
     "friendId": "3bbce49e-dbae-454e-b885-72094404090d",
-    "rating": "superlike",
-    "createdAt": 1609528228576
-  },
-  {
-    "userId": "eace7a49-5798-4adf-9467-a9594057ee6f",
-    "friendId": "1f7d9031-726f-4878-9895-2bc06e8d8a26",
     "rating": "superlike",
     "createdAt": 1609528228576
   },
@@ -3412,11 +3388,5 @@
     "friendId": "b715f59c-3030-423f-963c-c6e85d10b8f1",
     "rating": "like",
     "createdAt": 1609528228577
-  },
-  {
-    "userId": "679e8f13-f384-43a1-bef0-40059e5657f2",
-    "friendId": "c0fed28e-cc96-4d40-bebf-54832ff00ec3",
-    "rating": "like",
-    "createdAt": 1609531906929
   }
 ]

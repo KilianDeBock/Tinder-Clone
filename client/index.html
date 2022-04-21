@@ -6,13 +6,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Tinder | Programming 2: Front-End Advanced | Associate Degree in Computer Programming</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
-    <link rel="stylesheet" href="./static/css/main.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="./static/css/main.css" crossorigin="anonymous"/>
 </head>
 
 <body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous"></script>
-    <script src="./static/js/services.js"></script>
-    <script src="./static/js/main.js"></script>
+<main>
+    <section id="users">
+        <h2>Users</h2>
+        <ul id="users__list" class="content"></ul>
+    </section>
+    <section id="messages">
+        <h2>Messages</h2>
+        <div class="duo-box">
+            <div id="inbox">
+                <div class="counting-box">
+                    <h3>Inbox</h3>
+                    <span class="counting-box__counter">0</span>
+                </div>
+                <ul id="inbox__list" class="messages__list content"></ul>
+            </div>
+            <div id="outbox">
+                <div class="counting-box">
+                    <h3>Outbox</h3>
+                    <span class="counting-box__counter">0</span>
+                </div>
+                <ul id="outbox__list" class="messages__list content"></ul>
+            </div>
+        </div>
+    </section>
+    <section id="conversation">
+        <h2>Conversation</h2>
+        <ul id="conversation__list" class="content"></ul>
+        <form id="conversation__form">
+            <textarea id="conversation__form-message" placeholder="Type your message..."></textarea>
+            <button id="conversation__form-submit">Send</button>
+        </form>
+    </section>
+    <section id="matches">
+        <h2>Matches</h2>
+        <div class="duo-box">
+            <div id="no-match">
+                <h3>No Matches</h3>
+                <ul id="no-match__list" class="content"></ul>
+            </div>
+            <div id="match">
+                <h3>Matches</h3>
+                <ul id="match__list" class="content"></ul>
+            </div>
+        </div>
+        </div>
+    </section>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous"></script>
+<script src="./static/js/services.js"></script>
+<script src="./static/js/main.js"></script>
 </body>
 </html>
